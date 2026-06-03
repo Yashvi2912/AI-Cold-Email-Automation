@@ -14,6 +14,11 @@ An intelligent automation workflow designed to streamline job outreach by genera
 
 ### 📸 Project Previews
 
+#### **User Interface**
+The workflow begins with a custom n8n form where the user inputs the job details and preferences.
+![Job Application Form](./screenshots/form_input_ui.png)
+
+
 #### **Workflow Logic & Routing**
 | Gmail Path (Active) | Outlook Path (Active) |
 | :--- | :--- |
@@ -25,7 +30,7 @@ An intelligent automation workflow designed to streamline job outreach by genera
 | ![Gmail Preview](./screenshots/gmail_draft_preview.png) | ![Outlook Preview](./screenshots/outlook_draft_preview.png) |
 
 ### 📂 How to Use
-1.  **Import**: Download and import the `workflow.json` file into your n8n instance.
+1.  **Import**: Download and import the `My workflow.json` file into your n8n instance.
 2.  **Configuration**: Connect your own credentials for Gmail and Outlook. 
 3.  **Security**: For maximum security, it is recommended to use the "Manual Setup" method in the developer consoles to limit scope access.
 4.  **Run**: Publish the workflow and use the built-in form trigger to begin generating personalized drafts instantly.
