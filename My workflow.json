@@ -1,0 +1,284 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -368,
+        -16
+      ],
+      "id": "e0940aea-08ee-45fd-ad9b-30e2a790db0e",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "formTitle": "Job Application Link",
+        "formDescription": "Paste the job details URL here",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Job URL"
+            },
+            {
+              "fieldLabel": "Tone",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Professional"
+                  },
+                  {
+                    "option": "Friendly and Approachable"
+                  },
+                  {
+                    "option": "Persuasive / Salesy"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Template",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Standard Outreach"
+                  },
+                  {
+                    "option": "Consulting Proposal"
+                  },
+                  {
+                    "option": "Partnership Request"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Email Provider",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Gmail"
+                  },
+                  {
+                    "option": "Outlook"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        -192,
+        -16
+      ],
+      "id": "1769f2e3-e6be-4637-9522-fac9a4aab7df",
+      "name": "On form submission",
+      "webhookId": "c3acdf5b-8dae-4005-9818-db657a0e5a87"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://ai-cold-email-generator-sg56.onrender.com/generate-email",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json['Job URL'] }}"
+            },
+            {
+              "name": "tone",
+              "value": "={{ $json.Tone }}"
+            },
+            {
+              "name": "template",
+              "value": "={{ $json.Template }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        32,
+        -16
+      ],
+      "id": "efcdb7cf-cdae-4695-ab8d-c312c3d26c1b",
+      "name": "HTTP Request",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('On form submission').item.json['Email Provider'] }}",
+                    "rightValue": "Gmail",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "8a2514e7-9fd3-4d5f-8836-fbc0ad883837"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "57d0321f-43e0-4c21-84fa-2c15a84103d6",
+                    "leftValue": "={{ $('On form submission').item.json['Email Provider'] }}",
+                    "rightValue": "Outlook",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        -32
+      ],
+      "id": "9d58ff94-522f-4bd6-bb6c-ed4541c725c4",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $('HTTP Request').item.json.role }}",
+        "message": "={{ $('HTTP Request').item.json.email }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        -112
+      ],
+      "id": "d89a7ffb-16f6-4ea3-862e-54af32383bed",
+      "name": "Create a draft",
+      "webhookId": "77fa9491-a49b-4ae0-bede-6a4055dae300",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "HUqEurGcVwc2vmoB",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $('HTTP Request').item.json.role }}",
+        "bodyContent": "={{ $('HTTP Request').item.json.email }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        480,
+        16
+      ],
+      "id": "86364790-e913-444d-8b55-d61af2e4d40e",
+      "name": "Create a draft1",
+      "webhookId": "352b0e4f-7932-4669-adb5-a72ab0f04d36",
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "XGlSA46QaOQHwVTh",
+          "name": "Microsoft Outlook OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create a draft1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "40f7d10d-50ae-4b69-b386-4f03077a48d9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ef907c9df510e23fa98f42b53bcde7cb97d4dcbd603fb231b7324d356619a4c5"
+  },
+  "nodeGroups": [],
+  "id": "KfJp2E16aivDopg8",
+  "tags": []
+}
